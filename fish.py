@@ -20,6 +20,7 @@ class Fish():
     def __init__(self, scr, img_name):
         # сохраняем экран
         self.screen = scr
+        self.SCREEN_X, self.SCREEN_Y = self.screen.get_size()
         # сохраняем имя файла рыбы
         self.name = img_name
         # создаем базовую картинку рыбы с альфа каналом
@@ -58,7 +59,7 @@ class Fish():
         # так же задаем отрицательную скорость
         if self.direction:
             # устанавливаем рыбу в начальное положение: за правый край экрана
-            self.x_pos = 1024
+            self.x_pos = self.SCREEN_X
             # задаем отрицательную скорость
             self.speed = 0 - self.speed
             self.img = pygame.transform.flip(self.img, True, False)
@@ -68,7 +69,7 @@ class Fish():
             self.x_pos = 0 - self.x_size
 
         # устанавливаем рыбу в начальное положение: в случайную позицию по высоте
-        self.y_pos = random.randint(0, 768 - self.y_size)
+        self.y_pos = random.randint(0, self.SCREEN_Y - self.y_size)
 
         # отрисовка случайной буквы на середину копии
         self.img.blit(text, (self.x_size/2 - text.get_width()/2, self.y_size/2 - text.get_height()/2))
@@ -91,17 +92,22 @@ class Fish():
                 # то возвращаем True (поймали) и переинициализируем рыбу заново
                 ret = True
                 self.init_fish()
-            else:
-                # если же флаг поимки стоял, но условия попадения крючка не совпали - "мазила"! :)
-                print "Мазила!"
+            # если же не попали или буква не та, то разворачиваем рыбу и ускоряем ее
+            elif((self.img.get_at((x - self.x_pos, y - self.y_pos)).a > 200) and catch <> self.rnd_char):
+                self.img = pygame.transform.flip(self.img, True, False)
+                self.speed = self.speed * -3
+
         # сдвигаем рыбу
         self.x_pos += self.speed
 
         # если рыба ушла за край экрана - переинициализируем ее
-        if (self.x_pos > 1024 and self.speed > 0) or (self.x_pos < (0 - self.x_size) and self.speed < 0):
+        if (self.x_pos > self.SCREEN_X and self.speed > 0) or (self.x_pos < (0 - self.x_size) and self.speed < 0):
             self.init_fish()
 
         # в конце отрисовываем рыбу на экране
         self.screen.blit(self.img, (self.x_pos, self.y_pos))
         # и вернем код возврата
         return ret
+
+    def show_fish(self):
+        pass

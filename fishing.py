@@ -12,6 +12,9 @@ import pygame, sys, random, math, os
 from pygame.locals import *
 import sea, fish, hook
 
+SCREEN_X = 1024
+SCREEN_Y = 768
+
 def run():
 	# буква за которой охотимся
     big_char = u"А"
@@ -29,7 +32,7 @@ def run():
 	# устанавливаем заголовок
     pygame.display.set_caption("Веселая рыбалка")
 	# создаем окно
-    screen = pygame.display.set_mode((1024, 768), HWSURFACE|DOUBLEBUF)
+    screen = pygame.display.set_mode((SCREEN_X, SCREEN_Y), HWSURFACE|DOUBLEBUF)
 	# создаем море
     Sea = sea.Sea(screen)
 	# создаем крючок и леску
@@ -47,6 +50,7 @@ def run():
         x, y = pygame.mouse.get_pos()
 	    # устанавливаем флаг поимки в False
         catch = False
+        catched = False
 
 	    # опрос очереди событий
         for event in pygame.event.get():
@@ -64,10 +68,18 @@ def run():
         for j in fishes:
 	        # рыбе передаем позицию курсора и флаг поимки, получаем False, если не поймана, или True, если поймана
             ret = j.update(x, y, catch)
-	        # если поймана сбрасываем флаг поимки в False и сообщаем о пойманной рыбе.
-            if ret:
-                catch = False
-                print "Поймал"
+	        # если поймана ставим флаг
+            if catch and ret:
+                catched = j
+
+        # если рыба поймана сбрасываем флаг поимки, отображаем пойманную рыбу с сбрасываем флаг пойманной рыбы
+        if catch and catched:
+            catch = False
+            catched.show_fish()
+            catched = False
+            catch_success(screen)
+        elif catch and not catched:
+            catch_fail()
 
 	    # обновляем крючок и леску
         FishHook.update(x, y)
@@ -77,6 +89,46 @@ def run():
 	    # отсчитываем тики для задержки
         clock.tick(50)
     return
+
+def catch_success(screen):
+    clock = pygame.time.Clock()
+
+    # количество шагов приближения картинки
+    fps = 30
+    # загружаем картинку
+    base_thumb = pygame.image.load(os.path.join("data", "thumbs_up.png")).convert_alpha()
+    # получаем размеры экрана, на котором рисуем и размер картинки
+    screen_size = screen.get_size()
+    thumb_size = base_thumb.get_size()
+    # шаг увеличения картинки
+    step = (thumb_size[0]/fps, thumb_size[1]/fps)
+
+    # цикл анимации
+    for i in xrange(fps):
+        # уменьшаем базовую картинку
+        thumb = pygame.transform.scale(base_thumb, (step[0] * (i + 1), step[1] * (i + 1)))
+        # получаем ее размер
+        thumb_size = thumb.get_size()
+        # рисуем ее на экране
+        screen.blit(thumb, (screen_size[0]/2 - thumb_size[0]/2, screen_size[1]/2 - thumb_size[1]/2))
+        # обновляем экран
+        pygame.display.update()
+        # тикаем ;)
+        clock.tick(50)
+
+    # подождем пока не нажмут мышь
+    while True:
+	    # опрос очереди событий
+        for event in pygame.event.get():
+	        # если нажата мышь - устанавливаем флаг поимки равный букве, которую ловим
+            if event.type == MOUSEBUTTONDOWN:
+                return
+        # тикаем ;)
+        clock.tick(50)
+
+
+def catch_fail():
+    print "Мазила!"
 
 if __name__ == "__main__":
     run()
