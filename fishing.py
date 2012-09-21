@@ -40,9 +40,9 @@ def run():
 	# таймер
     clock = pygame.time.Clock()
     # инициализируем джойстик, если есть
-    if pygame.joystick.get_count > 0:
-        joy = pygame.joystick.Joystick(0)
-        joy.init()
+    #if pygame.joystick.get_count > 0:
+    #    joy = pygame.joystick.Joystick(0)
+    #    joy.init()
 
 	# заполняем массив рыбами передавая путь до файлов
     for i in fish_pics:
