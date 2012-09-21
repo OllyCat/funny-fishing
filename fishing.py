@@ -39,15 +39,20 @@ def run():
     FishHook = hook.FishHook(screen)
 	# таймер
     clock = pygame.time.Clock()
+    # инициализируем джойстик, если есть
+    if pygame.joystick.get_count > 0:
+        joy = pygame.joystick.Joystick(0)
+        joy.init()
 
 	# заполняем массив рыбами передавая путь до файлов
     for i in fish_pics:
         fishes.append(fish.Fish(screen, os.path.join("data",i)))
 
+    # получаем позицию мыши
+    x, y = pygame.mouse.get_pos()
+
 	# основной цикл
     while True:
-	    # получаем позицию мыши
-        x, y = pygame.mouse.get_pos()
 	    # устанавливаем флаг поимки в False
         catch = False
         catched = False
@@ -55,10 +60,26 @@ def run():
 	    # опрос очереди событий
         for event in pygame.event.get():
 	        # выход, если событие выхода
-            if event.type == QUIT:
+            if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
                 sys.exit(0)
-	        # если нажата мышь - устанавливаем флаг поимки равный букве, которую ловим
-            if event.type == MOUSEBUTTONDOWN:
+
+	        # если мышь двинулась
+            if event.type == MOUSEMOTION:
+                # получаем позицию мыши
+                x, y = pygame.mouse.get_pos()
+
+	        # если джойстик двинулся
+            if event.type == JOYAXISMOTION:
+                axis_val = event.value
+                if event.axis == 0:
+                    x = event.value * SCREEN_X/2.0 + SCREEN_X/2.0
+                    x = int(x)
+                elif event.axis == 1:
+                    y = event.value * SCREEN_Y/2.0 + SCREEN_Y/2.0
+                    y = int(y)
+
+	        # если нажата мышь, или клавиша на джойстике - устанавливаем флаг поимки равный букве, которую ловим
+            if event.type == MOUSEBUTTONDOWN or event.type == JOYBUTTONDOWN:
                 catch = big_char
 
 	    # прорисовываем море
@@ -93,6 +114,8 @@ def run():
 def catch_success(screen):
     clock = pygame.time.Clock()
 
+    pygame.mouse.set_visible(True)
+
     # количество шагов приближения картинки
     fps = 30
     # загружаем картинку
@@ -121,11 +144,10 @@ def catch_success(screen):
 	    # опрос очереди событий
         for event in pygame.event.get():
 	        # если нажата мышь - устанавливаем флаг поимки равный букве, которую ловим
-            if event.type == MOUSEBUTTONDOWN:
+            if event.type == MOUSEBUTTONDOWN or event.type == JOYBUTTONDOWN or event.type == KEYDOWN:
                 return
         # тикаем ;)
         clock.tick(50)
-
 
 def catch_fail():
     print "Мазила!"

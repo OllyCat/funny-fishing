@@ -14,8 +14,6 @@ class FishHook():
 	# Конструктор получает screen
     def __init__(self, scr):
         self.screen = scr
-        # делаем курсор мыши невидимым
-        pygame.mouse.set_visible(False)
         # загружаем изображение крючка
         self.hook_img = pygame.image.load(os.path.join("data", "hook.png")).convert_alpha()
         # находим его середину, что бы можно было его позиционировать на центр мыши
@@ -24,6 +22,8 @@ class FishHook():
 
 	# получаем координаты мыши
     def update(self, x, y):
+        # делаем курсор мыши невидимым
+        pygame.mouse.set_visible(False)
         # рисуем леску
         pygame.draw.line(self.screen, (0, 0, 0), (x, y - self.y_delta), (x, 0))
         # рисуем крючок
