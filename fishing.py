@@ -169,27 +169,27 @@ def catch_success(screen):
         # тикаем ;)
         clock.tick(50)
 
-    # цикл анимации удаления
-    x_size, y_size = (base_thumb_rect.w, base_thumb_rect.h)
-    # чистим фон
-    screen.blit(background, base_thumb_rect)
-    # рисуем картинку
-    screen.blit(base_thumb, base_thumb_rect)
+    ## цикл анимации удаления
+    #x_size, y_size = (base_thumb_rect.w, base_thumb_rect.h)
+    ## чистим фон
+    #screen.blit(background, base_thumb_rect)
+    ## рисуем картинку
+    #screen.blit(base_thumb, base_thumb_rect)
 
-    for i in xrange(fps-1):
-        # чистим фон
-        screen.blit(background, base_thumb_rect)
-        # уменьшаем картинку
-        x_size -= step
-        y_size -= step
-        tmp_rect = pygame.Rect((0, 0), (x_size, y_size))
-        tmp_rect.center = screen_rect.center
-        # рисуем картинку
-        screen.blit(pygame.transform.scale(base_thumb, (tmp_rect.w, tmp_rect.h)), tmp_rect)
-        # обновляем экран
-        pygame.display.update(base_thumb_rect)
-        # тикаем ;)
-        clock.tick(50)
+    #for i in xrange(fps-1):
+    #    # чистим фон
+    #    screen.blit(background, base_thumb_rect)
+    #    # уменьшаем картинку
+    #    x_size -= step
+    #    y_size -= step
+    #    tmp_rect = pygame.Rect((0, 0), (x_size, y_size))
+    #    tmp_rect.center = screen_rect.center
+    #    # рисуем картинку
+    #    screen.blit(pygame.transform.scale(base_thumb, (tmp_rect.w, tmp_rect.h)), tmp_rect)
+    #    # обновляем экран
+    #    pygame.display.update(base_thumb_rect)
+    #    # тикаем ;)
+    #    clock.tick(50)
 
 def catch_fail():
     print "Мазила!"
