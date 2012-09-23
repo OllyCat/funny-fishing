@@ -10,14 +10,12 @@
 
 import pygame, sys, random, math, os
 from pygame.locals import *
-import sea, fish, hook
+import sea, fish, hook, ubar
 
-SCREEN_X = 1024
-SCREEN_Y = 768
+SCREEN_SIZE = (1024, 768)
+BAR_SIZE = (SCREEN_SIZE[0], 60)
 
 def run():
-	# буква за которой охотимся
-    big_char = u"А"
 	# массив рыб
     fishes = []
 	# список файлов рыб
@@ -32,11 +30,17 @@ def run():
 	# устанавливаем заголовок
     pygame.display.set_caption("Веселая рыбалка")
 	# создаем окно
-    screen = pygame.display.set_mode((SCREEN_X, SCREEN_Y), HWSURFACE|DOUBLEBUF)
+    screen = pygame.display.set_mode((SCREEN_SIZE[0], SCREEN_SIZE[1]), HWSURFACE|DOUBLEBUF)
+
+    # создаем верхний бар
+    u_bar = ubar.UBar(screen)#, pygame.Rect((0, 0, SCREEN_SIZE[0], BAR_SIZE[1])))
+	# буква за которой охотимся
+    big_char = u_bar.get_curchar()
 	# создаем море
     Sea = sea.Sea(screen)
 	# создаем крючок и леску
     FishHook = hook.FishHook(screen)
+    FishHook.update(pygame.mouse.get_pos())
 	# таймер
     clock = pygame.time.Clock()
     # инициализируем джойстик, если есть
@@ -55,7 +59,6 @@ def run():
     while True:
 	    # устанавливаем флаг поимки в False
         catch = False
-        catched = False
 
 	    # опрос очереди событий
         for event in pygame.event.get():
@@ -72,10 +75,10 @@ def run():
             if event.type == JOYAXISMOTION:
                 axis_val = event.value
                 if event.axis == 0:
-                    x = event.value * SCREEN_X/2.0 + SCREEN_X/2.0
+                    x = event.value * SCREEN_SIZE[0]/2.0 + SCREEN_SIZE[0]/2.0
                     x = int(x)
                 elif event.axis == 1:
-                    y = event.value * SCREEN_Y/2.0 + SCREEN_Y/2.0
+                    y = event.value * SCREEN_SIZE[1]/2.0 + SCREEN_SIZE[1]/2.0
                     y = int(y)
 
 	        # если нажата мышь, или клавиша на джойстике - устанавливаем флаг поимки равный букве, которую ловим
@@ -86,27 +89,28 @@ def run():
         Sea.update()
 
 	    # в цикле обновляем всех рыб
-        for j in fishes:
+        for j in fishes.__reversed__():
 	        # рыбе передаем позицию курсора и флаг поимки, получаем False, если не поймана, или True, если поймана
-            ret = j.update(x, y, catch)
-	        # если поймана ставим флаг
-            if catch and ret:
-                catched = j
-
-        # если рыба поймана сбрасываем флаг поимки, отображаем пойманную рыбу с сбрасываем флаг пойманной рыбы
-        if catch and catched:
-            catch = False
-            catched.show_fish()
-            catched = False
-            catch_success(screen)
-        elif catch and not catched:
-            catch_fail()
+            ret = j.update(x, y)
 
 	    # обновляем крючок и леску
-        FishHook.update(x, y)
+        FishHook.update((x, y))
 
 	    # обновляем дисплей
         pygame.display.update()
+
+        # обнаруживаем пересечение объектов, если при этом стоит флаг поимки и буква рыбы совпадает с искомой буквой, то рыба поймана, если не совпадает - то не поймана и разворачивается
+        fish_index = FishHook.get_rect().collidelist(map(lambda x: x.get_rect(), fishes))
+        if catch and fish_index >= 0:
+            if fishes[fish_index].get_char() == catch:
+                catch = False
+                fishes[fish_index].show_fish()
+                fishes[fish_index].init_fish()
+                catch_success(screen)
+            else:
+                fishes[fish_index].set_reverse()
+                catch_fail()
+
 	    # отсчитываем тики для задержки
         clock.tick(50)
     return
@@ -121,21 +125,21 @@ def catch_success(screen):
     # загружаем картинку
     base_thumb = pygame.image.load(os.path.join("data", "thumbs_up.png")).convert_alpha()
     # получаем размеры экрана, на котором рисуем и размер картинки
-    screen_size = screen.get_size()
-    thumb_size = base_thumb.get_size()
+    screen_size = screen.get_rect()
+    base_thumb_size = base_thumb.get_rect()
     # шаг увеличения картинки
-    step = (thumb_size[0]/fps, thumb_size[1]/fps)
+    step = base_thumb_size.w/fps
 
     # цикл анимации
     for i in xrange(fps):
-        # уменьшаем базовую картинку
-        thumb = pygame.transform.scale(base_thumb, (step[0] * (i + 1), step[1] * (i + 1)))
-        # получаем ее размер
-        thumb_size = thumb.get_size()
+        # создаем Rect малого, пропорционально шагу, размера
+        tmp_rect = pygame.Rect((0, 0), (step * i, step * i))
+        tmp_rect.center = screen_size.center
+        thumb_size = base_thumb_size.fit(tmp_rect)
         # рисуем ее на экране
-        screen.blit(thumb, (screen_size[0]/2 - thumb_size[0]/2, screen_size[1]/2 - thumb_size[1]/2))
+        screen.blit(pygame.transform.scale(base_thumb, (thumb_size.w, thumb_size.h)), thumb_size)
         # обновляем экран
-        pygame.display.update()
+        pygame.display.update(tmp_rect)
         # тикаем ;)
         clock.tick(50)
 

@@ -9,7 +9,7 @@
 
 import pygame, random
 
-class Fish():
+class Fish:
     '''
         Конструктор получает surface и путь к изображению рыбы
         screen - хранит объект screen
@@ -25,8 +25,8 @@ class Fish():
         self.name = img_name
         # создаем базовую картинку рыбы с альфа каналом
         self.base_img = pygame.image.load(self.name).convert_alpha()
-        # сохраняем ее размеры
-        self.x_size, self.y_size = self.base_img.get_size()
+        # сохраняем ее Rect
+        self.base_img_rect = self.base_img.get_rect()
 
         # получаем фонт
         fonts = pygame.font.match_font('Vendetta,Arial')
@@ -50,6 +50,7 @@ class Fish():
         text = self.font.render(self.rnd_char, 1, (255,255,255))
         # копия рыбы
         self.img = self.base_img.copy()
+        self.img_rect = self.img.get_rect()
 
         # ставим ей случайную скорость
         self.speed = random.randint(1, 5)
@@ -59,55 +60,49 @@ class Fish():
         # так же задаем отрицательную скорость
         if self.direction:
             # устанавливаем рыбу в начальное положение: за правый край экрана
-            self.x_pos = self.SCREEN_X
+            self.img_rect.x = self.SCREEN_X
             # задаем отрицательную скорость
             self.speed = 0 - self.speed
             self.img = pygame.transform.flip(self.img, True, False)
         # иначе - рыбу за левый край и скорость оставляем положительную
         else:
             # устанавливаем рыбу в начальное положение: за левый край экрана
-            self.x_pos = 0 - self.x_size
+            self.img_rect.x = -self.img_rect.w
 
         # устанавливаем рыбу в начальное положение: в случайную позицию по высоте
-        self.y_pos = random.randint(0, self.SCREEN_Y - self.y_size)
+        self.img_rect.y = random.randint(0, self.SCREEN_Y - self.img_rect.h)
 
         # отрисовка случайной буквы на середину копии
-        self.img.blit(text, (self.x_size/2 - text.get_width()/2, self.y_size/2 - text.get_height()/2))
+        self.img.blit(text, (self.img_rect.w/2 - text.get_width()/2, self.img_rect.h/2 - text.get_height()/2))
 
     '''
     получаем координаты мыши и флаг catch. если он равен букве на рыбе - значит рыба будет
     поймана, если крючок находится в ее области
     возвращаем True если рыба попалась
     '''
-    def update(self, x, y, catch):
-        #import pdb
-        #pdb.set_trace()
-        # код возврата
-        ret = False
-
-        # проверяем: если флаг поимки не False и при этом курсор мыши попадает на рыбу...
-        if(catch and (self.x_pos < x < (self.x_size + self.x_pos)) and (self.y_pos < y < (self.y_size + self.y_pos))):
-            # а так же пиксель под курсором не прозрачный...
-            if((self.img.get_at((x - self.x_pos, y - self.y_pos)).a > 200) and catch == self.rnd_char):
-                # то возвращаем True (поймали) и переинициализируем рыбу заново
-                ret = True
-                self.init_fish()
-            # если же не попали или буква не та, то разворачиваем рыбу и ускоряем ее
-            elif((self.img.get_at((x - self.x_pos, y - self.y_pos)).a > 200) and catch <> self.rnd_char):
-                self.img = pygame.transform.flip(self.img, True, False)
-                self.speed = self.speed * -3
-
+    def update(self, x, y): #, catch):
         # сдвигаем рыбу
-        self.x_pos += self.speed
+        self.img_rect.x += self.speed
 
         # если рыба ушла за край экрана - переинициализируем ее
-        if (self.x_pos > self.SCREEN_X and self.speed > 0) or (self.x_pos < (0 - self.x_size) and self.speed < 0):
+        if (self.img_rect.x > self.SCREEN_X and self.speed > 0) or (self.img_rect.x < (0 - self.img_rect.w) and self.speed < 0):
             self.init_fish()
 
         # в конце отрисовываем рыбу на экране
-        self.screen.blit(self.img, (self.x_pos, self.y_pos))
-        # и вернем код возврата
-        return ret
+        self.draw()
+
+    def draw(self):
+        self.screen.blit(self.img, self.img_rect)
+
+    def get_rect(self):
+        return self.img_rect
+
+    def get_char(self):
+        return self.rnd_char
+
+    def set_reverse(self):
+        self.speed = -self.speed * 3
+        self.img = pygame.transform.flip(self.img, True, False)
 
     def show_fish(self):
         pass

@@ -17,12 +17,11 @@ class Sea():
         self.screen = scr
         # имя файла фона (пока это просто градиент)
         back_file = os.path.join("data", "background.png")
-        # позиция бакграунда (пока не знаю надо ли)
-        self.draw_pos = (0, 0)
+
         # загружаем фон (а надо ли альфа канал? может потом надо будет)
         self.background = pygame.image.load(back_file).convert_alpha()
+        self.back_rect = self.background.get_rect()
 
 	# рисуем это все на экране :)
     def update(self):
-        self.screen.blit(self.background, self.draw_pos)
-        return
+        self.screen.blit(self.background, self.back_rect)
