@@ -15,9 +15,9 @@ class FishHook():
     def __init__(self, scr):
         self.screen = scr
         # загружаем изображение крючка
-        self.hook_img = pygame.image.load(os.path.join("data", "hook.png")).convert_alpha()
+        self.image = pygame.image.load(os.path.join("data", "hook.png")).convert_alpha()
         # сохраняем Rect
-        self.hook_img_rect = self.hook_img.get_rect()
+        self.rect = self.image.get_rect()
 
         self.draw()
 
@@ -26,15 +26,13 @@ class FishHook():
         # делаем курсор мыши невидимым
         pygame.mouse.set_visible(False)
         # меняем позицию крючка
-        delt_pos = (pos[0] - self.hook_img_rect.x, pos[1] - self.hook_img_rect.y)
-        self.hook_img_rect.move_ip(delt_pos)
+        delt_pos = (pos[0] - self.rect.x, pos[1] - self.rect.y)
+        self.rect.move_ip(delt_pos)
         # рисуем леску
-        pygame.draw.line(self.screen, (0, 0, 0), (pos[0] + self.hook_img_rect.w/2, pos[1]), (pos[0] + self.hook_img_rect.w/2, 0))
+        pygame.draw.line(self.screen, (0, 0, 0), (pos[0] + self.rect.w/2, pos[1]), (pos[0] + self.rect.w/2, 0))
         # рисуем крючок
         self.draw()
 
     def draw(self):
-        self.screen.blit(self.hook_img, self.hook_img_rect)
+        self.screen.blit(self.image, self.rect)
 
-    def get_rect(self):
-        return self.hook_img_rect

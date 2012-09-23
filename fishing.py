@@ -100,7 +100,7 @@ def run():
         pygame.display.update()
 
         # обнаруживаем пересечение объектов, если при этом стоит флаг поимки и буква рыбы совпадает с искомой буквой, то рыба поймана, если не совпадает - то не поймана и разворачивается
-        fish_index = FishHook.get_rect().collidelist(map(lambda x: x.get_rect(), fishes))
+        fish_index = FishHook.rect.collidelist(map(lambda x: x.rect, fishes))
         if catch and fish_index >= 0:
             if fishes[fish_index].get_char() == catch:
                 catch = False

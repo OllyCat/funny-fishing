@@ -24,9 +24,9 @@ class Fish:
         # сохраняем имя файла рыбы
         self.name = img_name
         # создаем базовую картинку рыбы с альфа каналом
-        self.base_img = pygame.image.load(self.name).convert_alpha()
+        self.image = pygame.image.load(self.name).convert_alpha()
         # сохраняем ее Rect
-        self.base_img_rect = self.base_img.get_rect()
+        self.rect = self.image.get_rect()
 
         # получаем фонт
         fonts = pygame.font.match_font('Vendetta,Arial')
@@ -49,8 +49,8 @@ class Fish:
         # отрисовка текста
         text = self.font.render(self.rnd_char, 1, (255,255,255))
         # копия рыбы
-        self.img = self.base_img.copy()
-        self.img_rect = self.img.get_rect()
+        self.img = self.image.copy()
+        self.rect = self.img.get_rect()
 
         # ставим ей случайную скорость
         self.speed = random.randint(1, 5)
@@ -60,20 +60,20 @@ class Fish:
         # так же задаем отрицательную скорость
         if self.direction:
             # устанавливаем рыбу в начальное положение: за правый край экрана
-            self.img_rect.x = self.SCREEN_X
+            self.rect.x = self.SCREEN_X
             # задаем отрицательную скорость
             self.speed = 0 - self.speed
             self.img = pygame.transform.flip(self.img, True, False)
         # иначе - рыбу за левый край и скорость оставляем положительную
         else:
             # устанавливаем рыбу в начальное положение: за левый край экрана
-            self.img_rect.x = -self.img_rect.w
+            self.rect.x = -self.rect.w
 
         # устанавливаем рыбу в начальное положение: в случайную позицию по высоте
-        self.img_rect.y = random.randint(0, self.SCREEN_Y - self.img_rect.h)
+        self.rect.y = random.randint(0, self.SCREEN_Y - self.rect.h)
 
         # отрисовка случайной буквы на середину копии
-        self.img.blit(text, (self.img_rect.w/2 - text.get_width()/2, self.img_rect.h/2 - text.get_height()/2))
+        self.img.blit(text, (self.rect.w/2 - text.get_width()/2, self.rect.h/2 - text.get_height()/2))
 
     '''
     получаем координаты мыши и флаг catch. если он равен букве на рыбе - значит рыба будет
@@ -82,20 +82,17 @@ class Fish:
     '''
     def update(self, x, y): #, catch):
         # сдвигаем рыбу
-        self.img_rect.x += self.speed
+        self.rect.x += self.speed
 
         # если рыба ушла за край экрана - переинициализируем ее
-        if (self.img_rect.x > self.SCREEN_X and self.speed > 0) or (self.img_rect.x < (0 - self.img_rect.w) and self.speed < 0):
+        if (self.rect.x > self.SCREEN_X and self.speed > 0) or (self.rect.x < (0 - self.rect.w) and self.speed < 0):
             self.init_fish()
 
         # в конце отрисовываем рыбу на экране
         self.draw()
 
     def draw(self):
-        self.screen.blit(self.img, self.img_rect)
-
-    def get_rect(self):
-        return self.img_rect
+        self.screen.blit(self.img, self.rect)
 
     def get_char(self):
         return self.rnd_char
