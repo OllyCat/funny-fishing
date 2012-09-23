@@ -17,16 +17,24 @@ class Fish:
         x_pos, y_pos - стартовая позиция
         speed - случайная скорость рыбы
     '''
-    def __init__(self, scr, img_name):
+    def __init__(self, scr, rect, img_name, cur_char):
         # сохраняем экран
         self.screen = scr
-        self.SCREEN_X, self.SCREEN_Y = self.screen.get_size()
         # сохраняем имя файла рыбы
         self.name = img_name
         # создаем базовую картинку рыбы с альфа каналом
         self.image = pygame.image.load(self.name).convert_alpha()
         # сохраняем ее Rect
         self.rect = self.image.get_rect()
+        # сохраняем букву, за которой охотимся
+        self.cur_char = cur_char
+
+        # алфавит
+        # установка случайной буквы на рыбу
+        self.alpabet = u"АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ"
+
+        # сохраняем Rect области куда можно рисовать
+        self.work_rect = rect
 
         # получаем фонт
         fonts = pygame.font.match_font('Vendetta,Arial')
@@ -37,11 +45,8 @@ class Fish:
 
     # инициализация рыбы: установка стартовой позиции и буквы
     def init_fish(self):
-        # алфавит
-        alpabet = u"АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ"
         # установка случайной буквы на рыбу
-        #self.rnd_char = alpabet[random.randint(0, len(alpabet) - 1)]
-        self.rnd_char = alpabet[random.randint(0, 3)]
+        self.set_rndchar()
 
         # ставим случайным образом направление движения рыбы
         self.direction = random.randint(0, 1)
@@ -60,7 +65,7 @@ class Fish:
         # так же задаем отрицательную скорость
         if self.direction:
             # устанавливаем рыбу в начальное положение: за правый край экрана
-            self.rect.x = self.SCREEN_X
+            self.rect.x = self.work_rect.x + self.work_rect.w
             # задаем отрицательную скорость
             self.speed = 0 - self.speed
             self.img = pygame.transform.flip(self.img, True, False)
@@ -70,7 +75,7 @@ class Fish:
             self.rect.x = -self.rect.w
 
         # устанавливаем рыбу в начальное положение: в случайную позицию по высоте
-        self.rect.y = random.randint(0, self.SCREEN_Y - self.rect.h)
+        self.rect.y = random.randint(self.work_rect.y, self.work_rect.y + self.work_rect.h - self.rect.h)
 
         # отрисовка случайной буквы на середину копии
         self.img.blit(text, (self.rect.w/2 - text.get_width()/2, self.rect.h/2 - text.get_height()/2))
@@ -85,7 +90,7 @@ class Fish:
         self.rect.x += self.speed
 
         # если рыба ушла за край экрана - переинициализируем ее
-        if (self.rect.x > self.SCREEN_X and self.speed > 0) or (self.rect.x < (0 - self.rect.w) and self.speed < 0):
+        if (self.rect.x > (self.work_rect.x + self.work_rect.w) and self.speed > 0) or (self.rect.x < -self.rect.w and self.speed < 0):
             self.init_fish()
 
         # в конце отрисовываем рыбу на экране
@@ -100,6 +105,12 @@ class Fish:
     def set_reverse(self):
         self.speed = -self.speed * 3
         self.img = pygame.transform.flip(self.img, True, False)
+
+    def set_rndchar(self):
+        cur_idx = self.alpabet.index(self.cur_char)
+        min_idx = cur_idx - 2
+        max_idx = cur_idx + 2
+        self.rnd_char = self.alpabet[random.randint(min_idx, max_idx)]
 
     def show_fish(self):
         pass

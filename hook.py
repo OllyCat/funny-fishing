@@ -12,12 +12,15 @@ import pygame
 
 class FishHook():
 	# Конструктор получает screen
-    def __init__(self, scr):
+    def __init__(self, scr, rect):
         self.screen = scr
         # загружаем изображение крючка
         self.image = pygame.image.load(os.path.join("data", "hook.png")).convert_alpha()
         # сохраняем Rect
         self.rect = self.image.get_rect()
+
+        # сохраняем область для рисования
+        self.work_rect = rect
 
         self.draw()
 
@@ -29,10 +32,11 @@ class FishHook():
         delt_pos = (pos[0] - self.rect.x, pos[1] - self.rect.y)
         self.rect.move_ip(delt_pos)
         # рисуем леску
-        pygame.draw.line(self.screen, (0, 0, 0), (pos[0] + self.rect.w/2, pos[1]), (pos[0] + self.rect.w/2, 0))
+        pygame.draw.line(self.screen, (0, 0, 0), (pos[0] + self.rect.w/2, pos[1]), (pos[0] + self.rect.w/2, self.work_rect.y))
         # рисуем крючок
         self.draw()
 
     def draw(self):
+        self.screen.set_clip(self.work_rect)
         self.screen.blit(self.image, self.rect)
 

@@ -12,8 +12,9 @@ import pygame, sys, random, math, os
 from pygame.locals import *
 import sea, fish, hook, ubar
 
-SCREEN_SIZE = (1024, 768)
-BAR_SIZE = (SCREEN_SIZE[0], 60)
+SCREEN_RECT = pygame.Rect((0, 0), (1024, 768))
+BAR_RECT    = pygame.Rect((0, 0), (SCREEN_RECT.w, 60))
+SEA_RECT    = pygame.Rect((0, BAR_RECT.h), (SCREEN_RECT.w, SCREEN_RECT.h - BAR_RECT.h))
 
 def run():
 	# массив рыб
@@ -30,16 +31,18 @@ def run():
 	# устанавливаем заголовок
     pygame.display.set_caption("Веселая рыбалка")
 	# создаем окно
-    screen = pygame.display.set_mode((SCREEN_SIZE[0], SCREEN_SIZE[1]), HWSURFACE|DOUBLEBUF)
+    screen = pygame.display.set_mode((SCREEN_RECT.w, SCREEN_RECT.h), HWSURFACE|DOUBLEBUF)
 
     # создаем верхний бар
-    u_bar = ubar.UBar(screen)#, pygame.Rect((0, 0, SCREEN_SIZE[0], BAR_SIZE[1])))
+    u_bar = ubar.UBar(screen, BAR_RECT)
+    u_bar.draw()
+
 	# буква за которой охотимся
     big_char = u_bar.get_curchar()
 	# создаем море
-    Sea = sea.Sea(screen)
+    Sea = sea.Sea(screen, SEA_RECT)
 	# создаем крючок и леску
-    FishHook = hook.FishHook(screen)
+    FishHook = hook.FishHook(screen, SEA_RECT)
     FishHook.update(pygame.mouse.get_pos())
 	# таймер
     clock = pygame.time.Clock()
@@ -50,7 +53,7 @@ def run():
 
 	# заполняем массив рыбами передавая путь до файлов
     for i in fish_pics:
-        fishes.append(fish.Fish(screen, os.path.join("data",i)))
+        fishes.append(fish.Fish(screen, SEA_RECT, os.path.join("data",i), big_char))
 
     # получаем позицию мыши
     x, y = pygame.mouse.get_pos()
@@ -66,6 +69,10 @@ def run():
             if event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE):
                 sys.exit(0)
 
+	        # переключение в режим/из режима "полный экран"
+            if event.type == KEYDOWN and event.key == K_f:
+                pygame.display.toggle_fullscreen()
+
 	        # если мышь двинулась
             if event.type == MOUSEMOTION:
                 # получаем позицию мыши
@@ -75,10 +82,10 @@ def run():
             if event.type == JOYAXISMOTION:
                 axis_val = event.value
                 if event.axis == 0:
-                    x = event.value * SCREEN_SIZE[0]/2.0 + SCREEN_SIZE[0]/2.0
+                    x = event.value * SCREEN_RECT.w/2.0 + SCREEN_RECT.h/2.0
                     x = int(x)
                 elif event.axis == 1:
-                    y = event.value * SCREEN_SIZE[1]/2.0 + SCREEN_SIZE[1]/2.0
+                    y = event.value * SCREEN_RECT.w/2.0 + SCREEN_RECT.h/2.0
                     y = int(y)
 
 	        # если нажата мышь, или клавиша на джойстике - устанавливаем флаг поимки равный букве, которую ловим
@@ -103,10 +110,13 @@ def run():
         fish_index = FishHook.rect.collidelist(map(lambda x: x.rect, fishes))
         if catch and fish_index >= 0:
             if fishes[fish_index].get_char() == catch:
+                u_bar.update(catch)
                 catch = False
+                big_char = u_bar.get_curchar()
                 fishes[fish_index].show_fish()
-                fishes[fish_index].init_fish()
+                cached_fish = fishes.pop(fish_index)
                 catch_success(screen)
+                fishes.append(fish.Fish(screen, SEA_RECT, os.path.join("data", fish_pics[random.randint(0, len(fish_pics)) - 1]), big_char))
             else:
                 fishes[fish_index].set_reverse()
                 catch_fail()
@@ -117,6 +127,7 @@ def run():
 
 def catch_success(screen):
     clock = pygame.time.Clock()
+    screen.set_clip()
 
     pygame.mouse.set_visible(True)
 

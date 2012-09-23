@@ -12,7 +12,7 @@ import os
 
 class Sea():
 
-    def __init__(self, scr):
+    def __init__(self, scr, rect):
         # сохраняем экран
         self.screen = scr
         # имя файла фона (пока это просто градиент)
@@ -22,6 +22,10 @@ class Sea():
         self.image = pygame.image.load(back_file).convert_alpha()
         self.rect = self.image.get_rect()
 
+        # сохраняем область для рисования
+        self.work_rect = rect
+
 	# рисуем это все на экране :)
     def update(self):
+        self.screen.set_clip(self.work_rect)
         self.screen.blit(self.image, self.rect)
