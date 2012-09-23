@@ -8,7 +8,7 @@
 обработкой событий.
 """
 
-import pygame, sys, random, math, os
+import pygame, sys, random, math, os, re
 from pygame.locals import *
 import sea, fish, hook, ubar
 
@@ -19,12 +19,13 @@ SEA_RECT    = pygame.Rect((0, BAR_RECT.h), (SCREEN_RECT.w, SCREEN_RECT.h - BAR_R
 def run():
 	# массив рыб
     fishes = []
-	# список файлов рыб
-    fish_pics = (
-        "fish01.png",
-        "fish02.png",
-        "fish03.png",
-    )
+	# заполняем список файлов рыб
+    data_dir = os.listdir("data")
+    # выбираем только файлы рыб
+    fish_pics = re.findall("fish\d\d.png", ''.join(data_dir))
+    if len(fish_pics) == 0:
+        print(u"Ошибка! Файлы рыб не найдены!")
+        sys.exit(255)
 
 	# инициализация pygame
     pygame.init()
@@ -52,8 +53,8 @@ def run():
         joy.init()
 
 	# заполняем массив рыбами передавая путь до файлов
-    for i in fish_pics:
-        fishes.append(fish.Fish(screen, SEA_RECT, os.path.join("data",i), big_char))
+    for i in xrange(3):
+        fishes.append(fish.Fish(screen, SEA_RECT, os.path.join("data", random.choice(fish_pics)), big_char))
 
     # получаем позицию мыши
     x, y = pygame.mouse.get_pos()
@@ -116,7 +117,7 @@ def run():
                 fishes[fish_index].show_fish()
                 cached_fish = fishes.pop(fish_index)
                 catch_success(screen)
-                fishes.append(fish.Fish(screen, SEA_RECT, os.path.join("data", fish_pics[random.randint(0, len(fish_pics)) - 1]), big_char))
+                fishes.append(fish.Fish(screen, SEA_RECT, os.path.join("data", random.choice(fish_pics)), big_char))
             else:
                 fishes[fish_index].set_reverse()
                 catch_fail()
@@ -129,38 +130,64 @@ def catch_success(screen):
     clock = pygame.time.Clock()
     screen.set_clip()
 
-    pygame.mouse.set_visible(True)
-
     # количество шагов приближения картинки
     fps = 30
     # загружаем картинку
     base_thumb = pygame.image.load(os.path.join("data", "thumbs_up.png")).convert_alpha()
     # получаем размеры экрана, на котором рисуем и размер картинки
-    screen_size = screen.get_rect()
-    base_thumb_size = base_thumb.get_rect()
+    screen_rect = screen.get_rect()
+    base_thumb_rect = base_thumb.get_rect()
+    base_thumb_rect.center = screen_rect.center
     # шаг увеличения картинки
-    step = base_thumb_size.w/fps
+    step = base_thumb_rect.h/fps
+    # сохраним кусок экрана для очистки при анимации
+    background = screen.subsurface(base_thumb_rect).copy()
 
-    # цикл анимации
-    for i in xrange(fps):
+    # цикл анимации появления
+    for i in xrange(fps+1):
+        # чистим фон
+        screen.blit(background, base_thumb_rect)
         # создаем Rect малого, пропорционально шагу, размера
         tmp_rect = pygame.Rect((0, 0), (step * i, step * i))
-        tmp_rect.center = screen_size.center
-        thumb_size = base_thumb_size.fit(tmp_rect)
+        tmp_rect.center = screen_rect.center
+        thumb_rect = base_thumb_rect.fit(tmp_rect)
         # рисуем ее на экране
-        screen.blit(pygame.transform.scale(base_thumb, (thumb_size.w, thumb_size.h)), thumb_size)
+        screen.blit(pygame.transform.scale(base_thumb, (thumb_rect.w, thumb_rect.h)), thumb_rect)
         # обновляем экран
         pygame.display.update(tmp_rect)
         # тикаем ;)
         clock.tick(50)
 
     # подождем пока не нажмут мышь
-    while True:
+    runing = True
+    while runing:
 	    # опрос очереди событий
         for event in pygame.event.get():
 	        # если нажата мышь - устанавливаем флаг поимки равный букве, которую ловим
             if event.type == MOUSEBUTTONDOWN or event.type == JOYBUTTONDOWN or event.type == KEYDOWN:
-                return
+                runing = False
+        # тикаем ;)
+        clock.tick(50)
+
+    # цикл анимации удаления
+    x_size, y_size = (base_thumb_rect.w, base_thumb_rect.h)
+    # чистим фон
+    screen.blit(background, base_thumb_rect)
+    # рисуем картинку
+    screen.blit(base_thumb, base_thumb_rect)
+
+    for i in xrange(fps-1):
+        # чистим фон
+        screen.blit(background, base_thumb_rect)
+        # уменьшаем картинку
+        x_size -= step
+        y_size -= step
+        tmp_rect = pygame.Rect((0, 0), (x_size, y_size))
+        tmp_rect.center = screen_rect.center
+        # рисуем картинку
+        screen.blit(pygame.transform.scale(base_thumb, (tmp_rect.w, tmp_rect.h)), tmp_rect)
+        # обновляем экран
+        pygame.display.update(base_thumb_rect)
         # тикаем ;)
         clock.tick(50)
 
