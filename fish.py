@@ -110,7 +110,10 @@ class Fish:
         cur_idx = self.alpabet.index(self.cur_char)
         min_idx = cur_idx - 2
         max_idx = cur_idx + 2
-        self.rnd_char = self.alpabet[random.randint(min_idx, max_idx)]
+        rnd_idx = random.randint(min_idx, max_idx)
+        if rnd_idx >= len(self.alpabet):
+            rnd_idx = rnd_idx - len(self.alpabet)
+        self.rnd_char = self.alpabet[rnd_idx]
 
     def show_fish(self):
         pass
