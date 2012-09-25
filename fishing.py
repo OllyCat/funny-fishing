@@ -10,7 +10,7 @@
 
 import pygame, sys, random, math, os, re
 from pygame.locals import *
-import sea, fish, hook, ubar
+import sea, fish, hook, ubar, sound
 
 SCREEN_RECT = pygame.Rect((0, 0), (1024, 768))
 BAR_RECT    = pygame.Rect((0, 0), (SCREEN_RECT.w, 60))
@@ -24,7 +24,7 @@ def run():
     # выбираем только файлы рыб
     fish_pics = re.findall("fish\d\d.png", ''.join(data_dir))
     if len(fish_pics) == 0:
-        print(u"Ошибка! Файлы рыб не найдены!")
+        print("Error! Fish pics not found!")
         sys.exit(255)
 
 	# инициализация pygame
@@ -38,8 +38,16 @@ def run():
     u_bar = ubar.UBar(screen, BAR_RECT)
     u_bar.draw()
 
+    # загружаем звуки
+    games_sounds = sound.Sound()
+    # включаем музыку
+    games_sounds.play_music()
+
 	# буква за которой охотимся
     big_char = u_bar.get_curchar()
+    # попросим поймать начальную букву
+    games_sounds.play_startchar(big_char)
+
 	# создаем море
     Sea = sea.Sea(screen, SEA_RECT)
 	# создаем крючок и леску
@@ -107,19 +115,26 @@ def run():
 	    # обновляем дисплей
         pygame.display.update()
 
-        # обнаруживаем пересечение объектов, если при этом стоит флаг поимки и буква рыбы совпадает с искомой буквой, то рыба поймана, если не совпадает - то не поймана и разворачивается
+        # обнаруживаем пересечение объектов, если при этом стоит флаг поимки и
+        # буква рыбы совпадает с искомой буквой, то рыба поймана, если не
+        # совпадает - то не поймана и разворачивается
         fish_index = FishHook.rect.collidelist(map(lambda x: x.rect, fishes))
         if catch and fish_index >= 0:
             if fishes[fish_index].get_char() == catch:
                 u_bar.update(catch)
                 catch = False
-                big_char = u_bar.get_curchar()
+                new_char = u_bar.get_curchar()
                 fishes[fish_index].show_fish()
                 cached_fish = fishes.pop(fish_index)
+                games_sounds.play_success()
                 catch_success(screen)
                 fishes.append(fish.Fish(screen, SEA_RECT, os.path.join("data", random.choice(fish_pics)), big_char))
+                if new_char <> big_char:
+                    big_char = new_char
+                    games_sounds.play_startchar(big_char)
             else:
                 fishes[fish_index].set_reverse()
+                games_sounds.play_failchar(fishes[fish_index].get_char())
                 catch_fail()
 
 	    # отсчитываем тики для задержки
