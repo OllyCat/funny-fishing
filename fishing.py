@@ -221,5 +221,9 @@ class Game:
                     self.catch = self.big_char
 
 if __name__ == "__main__":
+    try:
+        os.chdir(os.path.sep.join(sys.argv[0].split(os.path.sep)[:-1]))
+    except:
+        pass
     g = Game()
     g.run()
