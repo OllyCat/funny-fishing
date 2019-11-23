@@ -20,7 +20,7 @@ class Fish:
         speed - случайная скорость рыбы
         ubar - хранит объект бара, для получения текущей буквы
     '''
-    def __init__(self, scr, rect, img_name, cur_char, ubar):
+    def __init__(self, scr, rect, img_name, cur_char, ubar, deck):
         # сохраняем бар
         self.u_bar = ubar
         # сохраняем экран
@@ -36,7 +36,7 @@ class Fish:
 
         # алфавит
         # установка случайной буквы на рыбу
-        self.alpabet = u"АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ"
+        self.alpabet = deck.get_all()
 
         # сохраняем Rect области куда можно рисовать
         self.work_rect = rect

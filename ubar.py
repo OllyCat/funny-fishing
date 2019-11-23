@@ -14,14 +14,14 @@ class UBar():
     [буква подсказка] |||шкала пойманных рыб|||
     так же тут выставляется текущая буква, за которой идет охота
     '''
-    def __init__(self, screen, rect):
+    def __init__(self, screen, rect, deck):
         # цвет фонтов
         self.f_color = (0xff, 0xff, 0xff)
         self.screen = screen
         # сохраняем Rect области бара
         self.rect = rect
         # массив букв для ловли
-        self.chars = list('АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ')
+        self.chars = deck.get_all()
         # счетчик пойманных рыб
         self.fish_counter = 0
         # указатель текущей буквы

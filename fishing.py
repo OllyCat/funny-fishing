@@ -16,6 +16,7 @@ import os
 import re
 from pygame.locals import *
 
+import deck
 import sea
 import fish
 import hook
@@ -47,8 +48,11 @@ class Game:
             print("Error! Fish pics not found!")
             sys.exit(255)
 
+        # создаём колоду
+        self.deck = deck.Deck()
+
         # создаем верхний бар
-        self.u_bar = ubar.UBar(self.screen, self.BAR_RECT)
+        self.u_bar = ubar.UBar(self.screen, self.BAR_RECT, self.deck)
         self.u_bar.draw()
 
         # загружаем звуки
@@ -75,7 +79,7 @@ class Game:
 
         # заполняем массив рыбами передавая путь до файлов
         for i in range(3):
-            self.fishes.append(fish.Fish(self.screen, self.SEA_RECT, os.path.join("data", random.choice(self.fish_pics)), self.big_char, self.u_bar))
+            self.fishes.append(fish.Fish(self.screen, self.SEA_RECT, os.path.join("data", random.choice(self.fish_pics)), self.big_char, self.u_bar, self.deck))
 
     def run(self):
         # попросим поймать начальную букву
@@ -122,7 +126,7 @@ class Game:
                     cached_fish = self.fishes.pop(fish_index)
                     self.games_sounds.play_success(self.big_char)
                     self.catch_success()
-                    self.fishes.append(fish.Fish(self.screen, self.SEA_RECT, os.path.join("data", random.choice(self.fish_pics)), self.big_char, self.u_bar))
+                    self.fishes.append(fish.Fish(self.screen, self.SEA_RECT, os.path.join("data", random.choice(self.fish_pics)), self.big_char, self.u_bar, self.deck))
                     if new_char != self.big_char:
                         self.big_char = new_char
                         self.games_sounds.play_startchar(self.big_char)
