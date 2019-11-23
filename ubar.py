@@ -20,7 +20,7 @@ class UBar():
         self.screen = screen
         # сохраняем Rect области бара
         self.rect = rect
-        # массив букв для ловли
+        # массив данных для ловли
         self.chars = deck.get_all()
         # счетчик пойманных рыб
         self.fish_counter = 0
@@ -30,7 +30,7 @@ class UBar():
         self.image = pygame.image.load(os.path.join("data", "pano.png")).convert()
 
         fonts = pygame.font.match_font('Vendetta,Arial')
-        self.font = pygame.font.Font(fonts, 44)
+        self.font = pygame.font.Font(fonts, 24)
 
     '''
     функция возвращает текущую букву, которую ловим
