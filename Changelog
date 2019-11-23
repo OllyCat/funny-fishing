@@ -1,5 +1,9 @@
 Author: Oleg Adianov <oleg.adianov@gmail.com>
 
+Date: Sat Nov 23 18:42:00 MSK 2019
+Beta 0.5:
+	- изменил для использования python 3
+
 Date:   Fri Sep 28 17:33:45 2012 +0400
 Beta 0.4:
 	- по просьбе главного бета-тестера, моего сына были добавлены акулы :)

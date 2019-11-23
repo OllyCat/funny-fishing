@@ -146,7 +146,7 @@ class Game:
         base_thumb_rect = base_thumb.get_rect()
         base_thumb_rect.center = screen_rect.center
         # шаг увеличения картинки
-        step = base_thumb_rect.h / fps
+        step = int(base_thumb_rect.h / fps)
         # сохраним кусок экрана для очистки при анимации
         background = self.screen.subsurface(base_thumb_rect).copy()
 
