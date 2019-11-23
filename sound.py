@@ -29,7 +29,10 @@ class Sound:
     def play_startchar(self, char):
         self.voice.play(self.sounds["start_char.ogg"])
         self.voice.set_volume(1.0)
-        self.voice.queue(self.sounds[char + ".ogg"])
+        try:
+            self.voice.queue(self.sounds[char + ".ogg"])
+        except:
+            print("ERROR: %s.ogg file not found " % char + ".ogg")
         self.music.set_volume(0.3)
 
     def play_music(self):
@@ -39,10 +42,16 @@ class Sound:
     def play_failchar(self, char):
         #self.voice.play(self.sounds["fail_char.ogg"])
         self.voice.set_volume(1.0)
-        self.voice.queue(self.sounds[char + ".ogg"])
+        try:
+            self.voice.queue(self.sounds[char + ".ogg"])
+        except:
+            print("ERROR: %s.ogg file not found " % char + ".ogg")
         self.music.set_volume(0.3)
 
     def play_success(self, char):
         self.voice.set_volume(1.0)
         #self.voice.play(self.sounds["success.ogg"])
-        self.voice.play(self.sounds[char + ".ogg"])
+        try:
+            self.voice.play(self.sounds[char + ".ogg"])
+        except:
+            print("ERROR: %s.ogg file not found " % char + ".ogg")
