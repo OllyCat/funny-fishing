@@ -8,9 +8,20 @@
 обработкой событий.
 """
 
-import pygame, sys, random, math, os, re
+import pygame
+import sys
+import random
+import math
+import os
+import re
 from pygame.locals import *
-import sea, fish, hook, ubar, sound
+
+import sea
+import fish
+import hook
+import ubar
+import sound
+
 
 class Game:
     def __init__(self):
@@ -22,9 +33,9 @@ class Game:
         # инициализация pygame
         pygame.init()
         # устанавливаем заголовок
-        pygame.display.set_caption("Веселая рыбалка")
+        pygame.display.set_caption("Весёлая рыбалка")
         # создаем окно
-        self.screen = pygame.display.set_mode((self.SCREEN_RECT.w, self.SCREEN_RECT.h), HWSURFACE|DOUBLEBUF)
+        self.screen = pygame.display.set_mode((self.SCREEN_RECT.w, self.SCREEN_RECT.h), HWSURFACE | DOUBLEBUF)
 
         # массив рыб
         self.fishes = []
@@ -63,8 +74,8 @@ class Game:
             joy.init()
 
         # заполняем массив рыбами передавая путь до файлов
-        for i in xrange(3):
-            self.fishes.append(fish.Fish(self.screen, self.SEA_RECT, os.path.join("data", random.choice(self.fish_pics)), self.big_char))
+        for i in range(3):
+            self.fishes.append(fish.Fish(self.screen, self.SEA_RECT, os.path.join("data", random.choice(self.fish_pics)), self.big_char, self.u_bar))
 
     def run(self):
         # попросим поймать начальную букву
@@ -101,7 +112,7 @@ class Game:
             # обнаруживаем пересечение объектов, если при этом стоит флаг поимки и
             # буква рыбы совпадает с искомой буквой, то рыба поймана, если не
             # совпадает - то не поймана и разворачивается
-            fish_index = self.FishHook.rect.collidelist(map(lambda x: x.rect, self.fishes))
+            fish_index = self.FishHook.rect.collidelist(list(map(lambda x: x.rect, self.fishes)))
             if self.catch and fish_index >= 0:
                 if self.fishes[fish_index].get_char() == self.catch:
                     self.u_bar.update(self.catch)
@@ -109,10 +120,10 @@ class Game:
                     new_char = self.u_bar.get_curchar()
                     self.fishes[fish_index].show_fish()
                     cached_fish = self.fishes.pop(fish_index)
-                    self.games_sounds.play_success()
+                    self.games_sounds.play_success(self.big_char)
                     self.catch_success()
-                    self.fishes.append(fish.Fish(self.screen, self.SEA_RECT, os.path.join("data", random.choice(self.fish_pics)), self.big_char))
-                    if new_char <> self.big_char:
+                    self.fishes.append(fish.Fish(self.screen, self.SEA_RECT, os.path.join("data", random.choice(self.fish_pics)), self.big_char, self.u_bar))
+                    if new_char != self.big_char:
                         self.big_char = new_char
                         self.games_sounds.play_startchar(self.big_char)
                 else:
@@ -135,12 +146,12 @@ class Game:
         base_thumb_rect = base_thumb.get_rect()
         base_thumb_rect.center = screen_rect.center
         # шаг увеличения картинки
-        step = base_thumb_rect.h/fps
+        step = base_thumb_rect.h / fps
         # сохраним кусок экрана для очистки при анимации
         background = self.screen.subsurface(base_thumb_rect).copy()
 
         # цикл анимации появления
-        for i in xrange(fps+1):
+        for i in range(fps + 1):
             # чистим фон
             self.screen.blit(background, base_thumb_rect)
             # создаем Rect малого, пропорционально шагу, размера
@@ -210,10 +221,10 @@ class Game:
                 if event.type == JOYAXISMOTION:
                     axis_val = event.value
                     if event.axis == 0:
-                        self.x = event.value * self.SCREEN_RECT.w/2.0 + self.SCREEN_RECT.h/2.0
+                        self.x = event.value * self.SCREEN_RECT.w / 2.0 + self.SCREEN_RECT.h / 2.0
                         self.x = int(self.x)
                     elif event.axis == 1:
-                        self.y = event.value * self.SCREEN_RECT.w/2.0 + self.SCREEN_RECT.h/2.0
+                        self.y = event.value * self.SCREEN_RECT.w / 2.0 + self.SCREEN_RECT.h / 2.0
                         self.y = int(self.y)
 
                 # если нажата мышь, или клавиша на джойстике - устанавливаем флаг поимки равный букве, которую ловим

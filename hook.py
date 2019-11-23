@@ -10,8 +10,9 @@
 import os
 import pygame
 
+
 class FishHook():
-	# Конструктор получает screen
+    # Конструктор получает screen
     def __init__(self, scr, rect):
         self.screen = scr
         # загружаем изображение крючка
@@ -24,7 +25,7 @@ class FishHook():
 
         self.draw()
 
-	# получаем координаты мыши в виде тюпла
+    # получаем координаты мыши в виде тюпла
     def update(self, pos):
         # делаем курсор мыши невидимым
         pygame.mouse.set_visible(False)
@@ -32,11 +33,10 @@ class FishHook():
         delt_pos = (pos[0] - self.rect.x, pos[1] - self.rect.y)
         self.rect.move_ip(delt_pos)
         # рисуем леску
-        pygame.draw.line(self.screen, (0, 0, 0), (pos[0] + self.rect.w/2, pos[1]), (pos[0] + self.rect.w/2, self.work_rect.y))
+        pygame.draw.line(self.screen, (0, 0, 0), (pos[0] + self.rect.w / 2, pos[1]), (pos[0] + self.rect.w / 2, self.work_rect.y))
         # рисуем крючок
         self.draw()
 
     def draw(self):
         self.screen.set_clip(self.work_rect)
         self.screen.blit(self.image, self.rect)
-

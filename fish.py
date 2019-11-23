@@ -7,7 +7,9 @@
 добавить анимацию.
 """
 
-import pygame, random
+import pygame
+import random
+
 
 class Fish:
     '''
@@ -16,8 +18,11 @@ class Fish:
         img - хранит спрайт рыбы
         x_pos, y_pos - стартовая позиция
         speed - случайная скорость рыбы
+        ubar - хранит объект бара, для получения текущей буквы
     '''
-    def __init__(self, scr, rect, img_name, cur_char):
+    def __init__(self, scr, rect, img_name, cur_char, ubar):
+        # сохраняем бар
+        self.u_bar = ubar
         # сохраняем экран
         self.screen = scr
         # сохраняем имя файла рыбы
@@ -27,7 +32,7 @@ class Fish:
         # сохраняем ее Rect
         self.rect = self.image.get_rect()
         # сохраняем букву, за которой охотимся
-        self.cur_char = cur_char
+        self.cur_char = self.u_bar.get_curchar()
 
         # алфавит
         # установка случайной буквы на рыбу
@@ -46,13 +51,15 @@ class Fish:
     # инициализация рыбы: установка стартовой позиции и буквы
     def init_fish(self):
         # установка случайной буквы на рыбу
+        # берем букву из бара, что бы не было сильных отклонений
+        self.cur_char = self.u_bar.get_curchar()
         self.set_rndchar()
 
         # ставим случайным образом направление движения рыбы
         self.direction = random.randint(0, 1)
 
         # отрисовка текста
-        text = self.font.render(self.rnd_char, 1, (255,255,255))
+        text = self.font.render(self.rnd_char, 1, (255, 255, 255))
         # копия рыбы
         self.img = self.image.copy()
         self.rect = self.img.get_rect()
@@ -78,14 +85,14 @@ class Fish:
         self.rect.y = random.randint(self.work_rect.y, self.work_rect.y + self.work_rect.h - self.rect.h)
 
         # отрисовка случайной буквы на середину копии
-        self.img.blit(text, (self.rect.w/2 - text.get_width()/2, self.rect.h/2 - text.get_height()/2))
+        self.img.blit(text, (self.rect.w / 2 - text.get_width() / 2, self.rect.h / 2 - text.get_height() / 2))
 
     '''
     получаем координаты мыши и флаг catch. если он равен букве на рыбе - значит рыба будет
     поймана, если крючок находится в ее области
     возвращаем True если рыба попалась
     '''
-    def update(self, x, y): #, catch):
+    def update(self, x, y):
         # сдвигаем рыбу
         self.rect.x += self.speed
 
@@ -103,7 +110,7 @@ class Fish:
         return self.rnd_char
 
     def set_reverse(self):
-        self.speed = -self.speed * 3
+        self.speed = -self.speed * 5
         self.img = pygame.transform.flip(self.img, True, False)
 
     def set_rndchar(self):

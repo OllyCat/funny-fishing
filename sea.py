@@ -10,6 +10,7 @@
 import pygame
 import os
 
+
 class Sea():
 
     def __init__(self, scr, rect):
@@ -25,7 +26,7 @@ class Sea():
         # сохраняем область для рисования
         self.work_rect = rect
 
-	# рисуем это все на экране :)
+    # рисуем это все на экране :)
     def update(self):
         self.screen.set_clip(self.work_rect)
         self.screen.blit(self.image, self.rect)
