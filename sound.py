@@ -14,9 +14,10 @@ from pygame.locals import *
 class Sound:
     def __init__(self):
         self.voice = pygame.mixer.Channel(0)
-        self.music = pygame.mixer.Channel(1)
+        self.music = pygame.mixer.music
 
         self.sounds = {}
+
         data_dir = os.listdir("sound")
         for i in data_dir:
             sound = pygame.mixer.Sound(os.path.join("sound", i))
@@ -25,6 +26,16 @@ class Sound:
                 os.exit(255)
             key = i
             self.sounds[key] = sound
+
+        self.musics = []
+
+        music_dir = os.listdir("music")
+        for i in music_dir:
+            m = os.path.join("music", i)
+            if m:
+                self.musics.append(m)
+
+        self.music_index = 0
 
     def play_startchar(self, char):
         self.voice.play(self.sounds["start_char.ogg"])
@@ -36,8 +47,27 @@ class Sound:
         self.music.set_volume(0.3)
 
     def play_music(self):
+        # если музыка не найдена - просто вернуться
+        if len(self.musics) == 0:
+            return
+
+        # если музыка играет - выходим, иначе начинаем смену трека
+        if self.music.get_busy():
+            return
+
+        # установить миксер
         self.music.set_volume(0.3)
-        self.music.play(self.sounds["music.ogg"], loops = -1)
+        # взять очередную песню
+        m = self.musics[self.music_index]
+        # загрузить
+        self.music.load(m)
+        # проиграть
+        self.music.play()
+        # изменить индекс
+        self.music_index += 1
+        # если это была последняя - начать плейлист сначала
+        if self.music_index >= len(self.musics):
+            self.music_index = 0
 
     def play_failchar(self, char):
         #self.voice.play(self.sounds["fail_char.ogg"])
