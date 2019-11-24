@@ -36,7 +36,9 @@ class UBar():
     функция возвращает текущую букву, которую ловим
     '''
     def get_curchar(self):
-        return self.chars[self.char_counter]
+        if len(self.chars) > 0:
+            return self.chars[self.char_counter]
+        return 'Файл deck.txt не найден или пуст!'
 
     '''
     функция обновления класса
@@ -62,11 +64,27 @@ class UBar():
         self.draw()
 
     def draw(self):
+        # устанавливаем область бара
         self.screen.set_clip(self.rect)
-        text = self.font.render(self.get_curchar(), 1, self.f_color)
+        # получаем текущий элемент, либо сообщение об ошибке
+        c = self.get_curchar()
+        # получаем surface текста
+        text = self.font.render(c, 1, self.f_color)
+        # получаем rect текста
         text_rect = text.get_rect()
-        text_rect.centerx = text_rect.centery = text_rect.centery + (self.rect.h - text_rect.h) / 2
+        # если текст длинный (сообщение об ошибке) умещаем его в экран
+        if len(c) > 10:
+            text_rect.fit(self.rect)
+        else:
+            # если нет - центруем
+            text_rect.centerx = self.rect.h / 2
+
+        # центруем по вертикали
+        text_rect.centery = text_rect.centery + (self.rect.h - text_rect.h) / 2
+        # отрисовываем текст
         self.screen.blit(self.image, (0, 0))
         self.screen.blit(text, text_rect)
+        # отрисовываем бары пойманных рыб
         for i in range(self.fish_counter):
             pygame.draw.rect(self.screen, self.f_color, (80 + i * 10, 14, 5, 14))
+

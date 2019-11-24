@@ -114,6 +114,11 @@ class Fish:
         self.img = pygame.transform.flip(self.img, True, False)
 
     def set_rndchar(self):
+        # если дек оказался пустой, то отдаём пустую строку
+        if len(self.alpabet) == 0:
+            self.rnd_char = ''
+            return
+
         cur_idx = self.alpabet.index(self.cur_char)
         min_idx = cur_idx - 2
         max_idx = cur_idx + 2

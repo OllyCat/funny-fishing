@@ -23,6 +23,8 @@ import hook
 import ubar
 import sound
 
+# перенаправление вывода в лог файл
+sys.stderr = open('error.log', 'w')
 
 class Game:
     def __init__(self):
@@ -133,6 +135,9 @@ class Game:
                 else:
                     self.fishes[fish_index].set_reverse()
                     self.catch_fail(fish_index)
+
+            # вызываем смену трека
+            self.games_sounds.play_music()
 
             # отсчитываем тики для задержки
             self.clock.tick(50)
