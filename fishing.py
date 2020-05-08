@@ -8,7 +8,11 @@
 обработкой событий.
 """
 
-import pygame
+try:
+    import pygame
+except ImportError:
+    pip.main(['install', '--user', 'pygame'])
+
 import sys
 import random
 import math
