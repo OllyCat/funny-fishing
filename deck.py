@@ -5,6 +5,7 @@
 # Created 2019-11-23
 
 import sys
+import random
 
 
 class Deck():
@@ -24,6 +25,8 @@ class Deck():
                 self.deck.append(l)
         except:
             print('DEBUG: deck.txt NOT FOUND.', file=sys.stderr)
+
+        random.shuffle(self.deck)
 
 
     '''
